@@ -16,7 +16,9 @@ import { OrderService } from './order/order.service';
 import { OrderModule } from './order/order.module';
 import { OrderSchema } from './schema/order.schema';
 import { ConfigService } from '@nestjs/config';
-
+import { ConfigModule } from '@nestjs/config';
+import { AppConfigModule } from 'config/config.module';
+import configuration from 'config/configuration';
 
 @Module({
   imports: [MongooseModule.forRootAsync({
@@ -25,10 +27,12 @@ import { ConfigService } from '@nestjs/config';
     }),
     inject: [ConfigService],
   }),
+  ConfigModule.forRoot({ isGlobal: true,
+    load: [configuration] }),
   MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema}]),
   MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema}]),
-    UserModule, ProductModule, AdminModule, OrderModule],
+    UserModule, ProductModule, AdminModule, OrderModule, AppConfigModule],
   controllers: [AppController, UserController, ProductController, AdminController],
-  providers: [AppService, UserService, ProductService, AdminService, OrderService ],
+  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService ],
 })
 export class AppModule {}
