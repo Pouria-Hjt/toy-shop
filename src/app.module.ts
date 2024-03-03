@@ -10,10 +10,14 @@ import { ProductModule } from './product/product.module';
 import { AdminService } from './admin/admin.service';
 import { AdminController } from './admin/admin.controller';
 import { AdminModule } from './admin/admin.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ProductSchema } from './schema/product.schema';
 
 @Module({
-  imports: [UserModule, ProductModule, AdminModule],
+  imports: [ MongooseModule.forRoot('mongodb://localhost/nest/Shop'),
+  MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema}]),
+    UserModule, ProductModule, AdminModule],
   controllers: [AppController, UserController, ProductController, AdminController],
-  providers: [AppService, UserService, ProductService, AdminService],
+  providers: [AppService, UserService, ProductService, AdminService, ],
 })
 export class AppModule {}
