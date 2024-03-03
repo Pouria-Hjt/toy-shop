@@ -15,9 +15,16 @@ import { ProductSchema } from './schema/product.schema';
 import { OrderService } from './order/order.service';
 import { OrderModule } from './order/order.module';
 import { OrderSchema } from './schema/order.schema';
+import { ConfigService } from '@nestjs/config';
+
 
 @Module({
-  imports: [ MongooseModule.forRoot('mongodb://localhost/nest/Shop'),
+  imports: [MongooseModule.forRootAsync({
+    useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('mongodbUrl')
+    }),
+    inject: [ConfigService],
+  }),
   MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema}]),
   MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema}]),
     UserModule, ProductModule, AdminModule, OrderModule],
