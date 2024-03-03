@@ -2,9 +2,11 @@ import { Controller, Get, Patch, Post, Delete, Param, Body } from '@nestjs/commo
 import { CreateProductDTO } from 'src/dto/create-product.dto';
 import { ProductService } from 'src/product/product.service';
 import { OrderService } from 'src/order/order.service';
-
+import { Roles } from 'src/decorator/role.decorator';
+import { UserRole } from 'src/enum/role.enum';
 
 @Controller('admin')
+@Roles(UserRole.Admin)
 export class AdminController {
     constructor(
         private readonly productService: ProductService,

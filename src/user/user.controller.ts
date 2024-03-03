@@ -1,9 +1,11 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { CreateOrderDTO } from 'src/dto/create-order.dto';
+import { UserRole } from 'src/enum/role.enum';
 import { OrderService } from 'src/order/order.service';
-
+import { Roles } from 'src/decorator/role.decorator';
 
 @Controller('user')
+@Roles(UserRole.User)
 export class UserController {
     constructor(private readonly orderService: OrderService) {}
 
