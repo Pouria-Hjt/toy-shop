@@ -3,10 +3,10 @@ import { CreateProductDTO } from 'src/dto/create-product.dto';
 import { ProductService } from 'src/product/product.service';
 import { OrderService } from 'src/order/order.service';
 import { Roles } from 'src/decorator/role.decorator';
-import { UserRole } from 'src/enum/role.enum';
+import { UserRoles } from 'src/constant/role.constant';
 
 @Controller('admin')
-@Roles(UserRole.Admin)
+@Roles(UserRoles.Admin)
 export class AdminController {
     constructor(
         private readonly productService: ProductService,
