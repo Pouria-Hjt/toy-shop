@@ -21,6 +21,8 @@ import { AppConfigModule } from 'config/config.module';
 import configuration from 'config/configuration';
 import { UserSchema } from './schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
+import { OtpService } from './otp/otp.service';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -35,9 +37,9 @@ import { JwtService } from '@nestjs/jwt';
     MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema}]),
     MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema}]),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema}]),
-    UserModule, ProductModule, AdminModule, OrderModule, AppConfigModule
+    UserModule, ProductModule, AdminModule, OrderModule, AppConfigModule, OtpModule
           ],
   controllers: [AppController, UserController, ProductController, AdminController],
-  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService, JwtService ],
+  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService, JwtService, OtpService ],
 })
 export class AppModule {}
