@@ -23,6 +23,9 @@ import { UserSchema } from './schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { OtpService } from './otp/otp.service';
 import { OtpModule } from './otp/otp.module';
+import { AuthController } from './auth/auth.controller';
+import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -37,9 +40,9 @@ import { OtpModule } from './otp/otp.module';
     MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema}]),
     MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema}]),
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema}]),
-    UserModule, ProductModule, AdminModule, OrderModule, AppConfigModule, OtpModule
+    UserModule, ProductModule, AdminModule, OrderModule, AppConfigModule, OtpModule, AuthModule
           ],
-  controllers: [AppController, UserController, ProductController, AdminController],
-  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService, JwtService, OtpService ],
+  controllers: [AppController, UserController, ProductController, AdminController, AuthController],
+  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService, JwtService, OtpService, AuthService ],
 })
 export class AppModule {}
