@@ -20,8 +20,7 @@ async function bootstrap() {
       transport: Transport.REDIS,
       options: {
         host: redisConfig.host,
-        port: parseInt(redisConfig.port),
-        password: redisConfig.password,
+        port: parseInt(redisConfig.port)
       },
     },
   );

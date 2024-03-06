@@ -1,8 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, UseInterceptors } from '@nestjs/common';
 import { ProductService } from './product/product.service';
-
+import { AuthInterceptor } from './auth/auth.interceptor';
+import { ObjectId } from 'mongoose';
 
 @Controller()
+@UseInterceptors(AuthInterceptor)
 export class AppController {
   constructor(private readonly productService: ProductService) {}
 

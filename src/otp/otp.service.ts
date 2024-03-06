@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as kavenegar from 'kavenegar'
 import Redis from 'ioredis';
 import { VerifyOtpDto } from 'src/dto/verify.dto';
@@ -13,29 +13,51 @@ export class OtpService {
     }
 
     async generateAndStoreOtp(phoneNumber: string): Promise<string> {
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await this.client.set(phoneNumber, otp, 'EX', 120);
-        return otp
+        try {
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            await this.client.set(phoneNumber, otp, 'EX', 120);
+            console.log(`otp: ${otp}`)
+            return otp
+        } catch (error) {
+            throw new HttpException('Failed to generate and store OTP', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     async sendOtp(phoneNumber: string): Promise<boolean> {
-        const api = kavenegar.KavenegarApi({
-            apikey: ''
-        })
-        const otp: string = await this.generateAndStoreOtp(phoneNumber)
-        return new Promise((resolve, reject) => {
-            api.VerifyLookup({
-                receptor: phoneNumber,
-                token: otp,
-                template: '',
-            }, function(response, status) {
-                status === 200 ? resolve(true) : reject(false)
+        try {
+            const api = kavenegar.KavenegarApi({
+                apikey: ''
             })
-        })
+            const otp: string = await this.generateAndStoreOtp(phoneNumber)
+            return new Promise((resolve, reject) => {
+                api.VerifyLookup({
+                    receptor: phoneNumber,
+                    token: otp,
+                    template: '',
+                }, function(response, status) {
+                    if (status === 200) {
+                        resolve(true);
+                    } else {
+                        reject(false)
+                    }
+                })
+            })
+        } catch (error) {
+            throw new HttpException('Failed to send OTP', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 
     async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<boolean> {
-        const storedOtp = await this.client.get(verifyOtpDto.phoneNumber)
-        return verifyOtpDto.otp === storedOtp
+        try {
+            const storedOtp = await this.client.get(verifyOtpDto.phoneNumber)
+            const isVerified = verifyOtpDto.otp === storedOtp
+            if (isVerified) {
+                return true
+            } else {
+                throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST)
+            }
+        } catch (error) {
+            throw new HttpException('Failed to verify OTP', HttpStatus.INTERNAL_SERVER_ERROR)
+        }
     }
 }

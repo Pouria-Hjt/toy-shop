@@ -1,12 +1,8 @@
-import {  IsNotEmpty, IsNumber, IsArray, ArrayMinSize, ValidateNested } from "class-validator"
-import { Type } from "class-transformer"
+import {  IsNotEmpty, IsNumber, IsArray, ArrayMinSize, ValidateNested, IsString } from "class-validator"
+
 
 export class ProductDto {
-    @IsNotEmpty()
-    id: string;
-
-    name: string;
-    price: number;
+    id: string
 
     @IsNotEmpty()
     @IsNumber()
@@ -15,14 +11,8 @@ export class ProductDto {
 
 export class CreateOrderDTO {
     @IsNotEmpty()
-    username: string
+    @IsString()
+    token: string
 
-    @IsNotEmpty()
-    @IsArray()
-    @ArrayMinSize(1)
-    @ValidateNested({ each: true })
-    @Type(() => ProductDto)
     products: ProductDto[]
-
-    totalPrice: number
 }

@@ -1,11 +1,14 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { CreateOrderDTO } from 'src/dto/create-order.dto';
 import { UserRoles } from 'src/constant/role.constant';
 import { OrderService } from 'src/order/order.service';
 import { Roles } from 'src/decorator/role.decorator';
+import { AuthInterceptor } from 'src/auth/auth.interceptor';
+import { ObjectId } from 'mongoose';
 
 @Controller('user')
 @Roles(UserRoles.User)
+@UseInterceptors(AuthInterceptor)
 export class UserController {
     constructor(private readonly orderService: OrderService) {}
 
@@ -20,7 +23,7 @@ export class UserController {
     }
 
     @Post('order/')
-    async addOrder(@Body() createOrderDTO: CreateOrderDTO) {
-        return await this.orderService.addOrder(createOrderDTO)
+    async create(@Body() createOrderDto: CreateOrderDTO) {
+        return this.orderService.createOrder(createOrderDto);
     }
 }

@@ -16,6 +16,6 @@ import { AuthInterceptor } from './auth.interceptor';
         {
             provide: APP_INTERCEPTOR,
             useClass: AuthInterceptor,
-        }  ]
+        }]
 })
 export class AuthModule {}

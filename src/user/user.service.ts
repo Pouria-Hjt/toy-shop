@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserDocument } from 'src/schema/user.schema';
+import { User, UserDocument } from 'src/schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
 import { UserRoles } from 'src/constant/role.constant';
 import { ConfigService } from '@nestjs/config';
@@ -35,5 +35,11 @@ export class UserService {
         const payload = { userId }
         const secretKey = this.configService.get<string>('secretKey')
         return this.jwtService.sign(payload, { expiresIn: '1d', secret: secretKey })
+    }
+
+    async findUserByToken(token: string): Promise<User> {
+        const decodedToken = this.jwtService.decode(token) as { userId: string };
+        const user = await this.userModel.findById(decodedToken.userId);
+        return user;
     }
 }

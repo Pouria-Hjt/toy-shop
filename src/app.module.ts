@@ -26,6 +26,8 @@ import { OtpModule } from './otp/otp.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
+import { AuthInterceptor } from 'src/auth/auth.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -43,6 +45,9 @@ import { AuthModule } from './auth/auth.module';
     UserModule, ProductModule, AdminModule, OrderModule, AppConfigModule, OtpModule, AuthModule
           ],
   controllers: [AppController, UserController, ProductController, AdminController, AuthController],
-  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService, JwtService, OtpService, AuthService ],
+  providers: [AppService, UserService, ProductService, AdminService, OrderService, ConfigService, JwtService, OtpService, AuthService,         {
+    provide: APP_INTERCEPTOR,
+    useClass: AuthInterceptor,
+} ],
 })
 export class AppModule {}

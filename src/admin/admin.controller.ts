@@ -1,12 +1,16 @@
-import { Controller, Get, Patch, Post, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Param, Body, UseInterceptors } from '@nestjs/common';
 import { CreateProductDTO } from 'src/dto/create-product.dto';
 import { ProductService } from 'src/product/product.service';
 import { OrderService } from 'src/order/order.service';
 import { Roles } from 'src/decorator/role.decorator';
 import { UserRoles } from 'src/constant/role.constant';
+import { AuthInterceptor } from 'src/auth/auth.interceptor';
+import { ObjectId } from 'mongoose';
 
 @Controller('admin')
 @Roles(UserRoles.Admin)
+@UseInterceptors(AuthInterceptor)
+
 export class AdminController {
     constructor(
         private readonly productService: ProductService,
