@@ -1,4 +1,4 @@
-import {  IsNotEmpty, IsNumber, IsArray, ArrayMinSize, ValidateNested, IsString } from "class-validator"
+import {  IsNotEmpty, IsNumber } from "class-validator"
 
 
 export class ProductDto {
@@ -10,9 +10,6 @@ export class ProductDto {
 }
 
 export class CreateOrderDTO {
-    @IsNotEmpty()
-    @IsString()
-    token: string
 
     products: ProductDto[]
 }

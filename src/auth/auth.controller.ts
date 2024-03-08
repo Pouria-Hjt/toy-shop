@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpException, HttpStatus, Redirect, Req, Res, Session, Get, UseInterceptors } from '@nestjs/common'
+import { Controller, Post, Body, HttpStatus, Req, Res, Get } from '@nestjs/common'
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from 'src/dto/register.dto';
@@ -8,7 +8,6 @@ import { Model } from 'mongoose';
 import { UserDocument } from 'src/schema/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserService } from 'src/user/user.service';
-import { AuthInterceptor } from './auth.interceptor';
 
 @Controller('auth')
 export class AuthController {
@@ -44,15 +43,14 @@ async getOtp() {}
 
 
 @Post('verify-otp')
-@UseInterceptors(AuthInterceptor)
-async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto, @Res() res: Response) {
+async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto, @Res() res: Response, @Req() req: Request) {
     try {
         await this.authService.verifyOtp(verifyOtpDto);
-        const user = await this.userModel.findOne({phoneNumber: verifyOtpDto.phoneNumber})
-        const token = await this.userService.generateAccessToken(user._id)
-        res.header('Authorization', `token: ${token}`).status(HttpStatus.OK).send({ message: 'OTP verification successful' })
+        const user = await this.userModel.findOne({ phoneNumber: verifyOtpDto.phoneNumber})
+        const token = await this.userService.generateAccessToken(user._id);
+        res.header('Authorization', `Bearer ${token}`).status(HttpStatus.OK).send({ message: 'OTP verification successful' });
     } catch (error) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'OTP verification failed' })
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'OTP verification failed' });
     }
 }
 }

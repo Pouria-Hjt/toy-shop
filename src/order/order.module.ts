@@ -8,7 +8,6 @@ import { UserSchema } from 'src/schema/user.schema';
 import { UserService } from 'src/user/user.service';
 import { ProductService } from 'src/product/product.service';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 
 @Module({
     imports: [ MongooseModule.forFeature([{ name: 'Order', schema: OrderSchema}]),

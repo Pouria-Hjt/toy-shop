@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/schema/user.schema';
 import { JwtService } from '@nestjs/jwt';
-import { UserRoles } from 'src/constant/role.constant';
+import { Role } from 'src/constant/role.constant';
 import { ConfigService } from '@nestjs/config';
 import { RegisterDto } from 'src/dto/register.dto';
 
@@ -19,15 +19,15 @@ export class UserService {
         return !!user
     }
 
-    async setUserRole(phoneNumber: string): Promise<number> {
-        const adminPhoneNumber = this.configService.get<string>('adminPhoneNumber')
-        const role = phoneNumber === adminPhoneNumber ? UserRoles.Admin : UserRoles.User
-        return role
+    async setUserRole(phoneNumber: string): Promise<Role> {
+        const adminPhoneNumber = this.configService.get<string>('adminPhoneNumber');
+        const roles = phoneNumber === adminPhoneNumber ? Role.Admin : Role.User;
+        return roles;
     }
 
     async createUser(phoneNumber: string, registerDto: RegisterDto) {
-        const role = await this.setUserRole(phoneNumber)
-        const newUser = new this.userModel({ ...registerDto, role})
+        const roles = await this.setUserRole(phoneNumber)
+        const newUser = new this.userModel({ ...registerDto, roles})
         return await newUser.save()
     }
 
@@ -39,7 +39,7 @@ export class UserService {
 
     async findUserByToken(token: string): Promise<User> {
         const decodedToken = this.jwtService.decode(token) as { userId: string };
-        const user = await this.userModel.findById(decodedToken.userId);
+        const user: User = await this.userModel.findById(decodedToken.userId).exec();
         return user;
     }
 }

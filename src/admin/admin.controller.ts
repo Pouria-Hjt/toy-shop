@@ -1,16 +1,15 @@
-import { Controller, Get, Patch, Post, Delete, Param, Body, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Param, Body, UseGuards } from '@nestjs/common';
 import { CreateProductDTO } from 'src/dto/create-product.dto';
 import { ProductService } from 'src/product/product.service';
 import { OrderService } from 'src/order/order.service';
 import { Roles } from 'src/decorator/role.decorator';
-import { UserRoles } from 'src/constant/role.constant';
-import { AuthInterceptor } from 'src/auth/auth.interceptor';
-import { ObjectId } from 'mongoose';
+import { Role } from 'src/constant/role.constant';
+import { RolesGuard } from 'src/guard/role.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
 
-@Controller('admin')
-@Roles(UserRoles.Admin)
-@UseInterceptors(AuthInterceptor)
-
+@UseGuards(AuthGuard, RolesGuard) 
+@Controller('admin') 
+@Roles(Role.Admin)
 export class AdminController {
     constructor(
         private readonly productService: ProductService,
@@ -41,7 +40,8 @@ export class AdminController {
     async updateProduct(@Param('id') id: string, @Body() createProductDTO: CreateProductDTO) {
         return await this.productService.updateProduct(id, createProductDTO)
     }
-
+     
+    
     @Get('orders')
     async getAllOrders() {
         return await this.orderService.getAllOrders()

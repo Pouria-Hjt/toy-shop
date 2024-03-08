@@ -1,14 +1,15 @@
-import { Controller, Get, Post, Body, Param, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req } from '@nestjs/common';
 import { CreateOrderDTO } from 'src/dto/create-order.dto';
-import { UserRoles } from 'src/constant/role.constant';
+import { Role } from 'src/constant/role.constant';
 import { OrderService } from 'src/order/order.service';
 import { Roles } from 'src/decorator/role.decorator';
-import { AuthInterceptor } from 'src/auth/auth.interceptor';
-import { ObjectId } from 'mongoose';
+import { RolesGuard } from 'src/guard/role.guard';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { Request } from 'express';
 
+@UseGuards(AuthGuard, RolesGuard)
 @Controller('user')
-@Roles(UserRoles.User)
-@UseInterceptors(AuthInterceptor)
+@Roles(Role.User)
 export class UserController {
     constructor(private readonly orderService: OrderService) {}
 
@@ -23,7 +24,7 @@ export class UserController {
     }
 
     @Post('order/')
-    async create(@Body() createOrderDto: CreateOrderDTO) {
-        return this.orderService.createOrder(createOrderDto);
+    async create(@Body() createOrderDto: CreateOrderDTO, @Req() req: Request) {
+        return this.orderService.createOrder(createOrderDto, req);
     }
 }

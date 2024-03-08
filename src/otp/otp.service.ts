@@ -2,13 +2,14 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as kavenegar from 'kavenegar'
 import Redis from 'ioredis';
 import { VerifyOtpDto } from 'src/dto/verify.dto';
+import { ConfigService } from '@nestjs/config';
 
 
 @Injectable()
 export class OtpService {
     private readonly client: Redis;
 
-    constructor() {
+    constructor(private readonly configService: ConfigService) {
       this.client = new Redis(); // Redis connection
     }
 
@@ -26,7 +27,7 @@ export class OtpService {
     async sendOtp(phoneNumber: string): Promise<boolean> {
         try {
             const api = kavenegar.KavenegarApi({
-                apikey: ''
+                apikey:  this.configService.get<string>('apiKey')
             })
             const otp: string = await this.generateAndStoreOtp(phoneNumber)
             return new Promise((resolve, reject) => {

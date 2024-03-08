@@ -3,16 +3,12 @@ import { UserService } from 'src/user/user.service';
 import { RegisterDto } from 'src/dto/register.dto';
 import { LoginDto } from 'src/dto/login.dto';
 import { OtpService } from 'src/otp/otp.service';
-import { Model } from 'mongoose';
-import { UserDocument } from 'src/schema/user.schema';
-import { InjectModel } from '@nestjs/mongoose';
 import { VerifyOtpDto } from 'src/dto/verify.dto';
 
 @Injectable()
 export class AuthService {
     constructor(private readonly userService: UserService,
-                private readonly otpService: OtpService,
-                @InjectModel('User') private readonly userModel: Model<UserDocument>) {}
+                private readonly otpService: OtpService) {}
 
     async register(registerDto: RegisterDto) {
         try {
@@ -28,7 +24,6 @@ export class AuthService {
         }
     }
 
-        // verify
     async login(loginDto: LoginDto) {
         try {
             const userExists = await this.userService.userExistence(loginDto.phoneNumber)
@@ -36,9 +31,7 @@ export class AuthService {
                 throw new HttpException('User does not exist', HttpStatus.NOT_FOUND)
             }
             await this.otpService.generateAndStoreOtp(loginDto.phoneNumber)
-
             // await this.otpService.sendOtp(loginDto.phoneNumber)
-            // // verify
         } catch (error) {
             throw new HttpException('Login failed', HttpStatus.INTERNAL_SERVER_ERROR)
         }
