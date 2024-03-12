@@ -14,8 +14,8 @@ export class UserService {
                 private readonly jwtService: JwtService,
                 private readonly configService: ConfigService) {}
 
-    async userExistence(phoneNumber: string): Promise<boolean> {
-        const user = await this.userModel.findOne({ phoneNumber })
+    async userExistence(phoneNumber: string) {
+        const user = await this.userModel.findOne({ phoneNumber: phoneNumber })
         return !!user
     }
 

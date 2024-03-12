@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpStatus, Req, Res, Get } from '@nestjs/common'
+import { Controller, Post, Body, HttpStatus, Req, Res, Get, HttpException } from '@nestjs/common'
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from 'src/dto/register.dto';
@@ -21,7 +21,11 @@ async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
         await this.authService.register(registerDto)
         res.status(HttpStatus.CREATED).send({ message: 'Registration successful' })
     } catch (error) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Registration failed' })
+        if (error instanceof HttpException && error.getStatus() === HttpStatus.CONFLICT) {
+            res.status(HttpStatus.CONFLICT).send({ message: 'User already exists' });
+        } else {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Registration failed' });
+        }
     }
 
 }
@@ -32,7 +36,11 @@ async login(@Body() loginDto: LoginDto, @Res() res: Response) {
         await this.authService.login(loginDto)
         res.status(HttpStatus.OK).send({ message: 'Login successful' })
     } catch (error) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Login failed' })
+        if (error instanceof HttpException && error.getStatus() === HttpStatus.NOT_FOUND) {
+            res.status(HttpStatus.NOT_FOUND).send({ message: 'User does not exist' });
+        } else {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Login failed' });
+        }
     }
 
 }
@@ -50,7 +58,11 @@ async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto, @Res() res: Response, @Req()
         const token = await this.userService.generateAccessToken(user._id);
         res.header('Authorization', `Bearer ${token}`).status(HttpStatus.OK).send({ message: 'OTP verification successful' });
     } catch (error) {
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'OTP verification failed' });
+        if (error instanceof HttpException && error.getStatus() === HttpStatus.BAD_REQUEST) {
+            res.status(HttpStatus.NOT_FOUND).send({ message: 'Invalid OTP' });
+        } else {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'OTP verification failed' });
+        }
     }
 }
 }

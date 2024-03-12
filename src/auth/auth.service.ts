@@ -11,41 +11,29 @@ export class AuthService {
                 private readonly otpService: OtpService) {}
 
     async register(registerDto: RegisterDto) {
-        try {
             const userExists = await this.userService.userExistence(registerDto.phoneNumber)
-            if (userExists) {
+            if (userExists === true) {
                 throw new HttpException('User already exists', HttpStatus.CONFLICT)
             }
             await this.otpService.generateAndStoreOtp(registerDto.phoneNumber)
             // await this.otpService.sendOtp(registerDto.phoneNumber)
             await this.userService.createUser(registerDto.phoneNumber, registerDto);
-        } catch (error) {
-            throw new HttpException('Registration failed', HttpStatus.INTERNAL_SERVER_ERROR)
-        }
     }
 
     async login(loginDto: LoginDto) {
-        try {
             const userExists = await this.userService.userExistence(loginDto.phoneNumber)
-            if (!userExists) {
+            if (userExists === false) {
                 throw new HttpException('User does not exist', HttpStatus.NOT_FOUND)
             }
             await this.otpService.generateAndStoreOtp(loginDto.phoneNumber)
             // await this.otpService.sendOtp(loginDto.phoneNumber)
-        } catch (error) {
-            throw new HttpException('Login failed', HttpStatus.INTERNAL_SERVER_ERROR)
-        }
 
     }
 
     async verifyOtp(verifyOtpDto: VerifyOtpDto) {
-        try {
             const isOtpValid = await this.otpService.verifyOtp(verifyOtpDto)
             if (!isOtpValid) {
                 throw new HttpException('Invalid OTP', HttpStatus.BAD_REQUEST)
-            } 
-        } catch (error) {
-            throw new HttpException('OTP verification failed', HttpStatus.INTERNAL_SERVER_ERROR)
-        }
+            }
     } 
 }
