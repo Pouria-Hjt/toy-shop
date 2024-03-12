@@ -12,7 +12,7 @@ export class Product {
     @Prop()
     description: string;
     @Prop()
-    image: string
+    image: Buffer
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product)

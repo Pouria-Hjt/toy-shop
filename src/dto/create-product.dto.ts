@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsBase64, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class CreateProductDTO {
 
@@ -15,6 +15,5 @@ export class CreateProductDTO {
     description: string;
 
     @IsNotEmpty()
-    @IsString()
-    image: any;
+    image: Buffer;
 }

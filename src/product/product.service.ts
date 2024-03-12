@@ -12,16 +12,29 @@ export class ProductService {
     constructor(@InjectModel('Product') private readonly productModel: Model<ProductDocument>) {}
 
     async getAllProducts(): Promise<Product[]> {
-        return await this.productModel.find()
+        const products = await this.productModel.find();
+        const transformedProducts = await Promise.all(products.map(async (product) => ({
+            ...product.toObject(),
+            image: await this.encodeImage(product.image),
+        })));
+        return transformedProducts;
     }
-
+    
     async getProduct(id: string): Promise<Product> {
-        return await this.productModel.findById(id)
+        const product = await this.productModel.findById(id);
+        if (!product) {
+            throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+        }
+        return {
+            ...product.toObject(),
+            image: await this.encodeImage(product.image), 
+        };
     }
 
     async addProduct(createProductDTO: CreateProductDTO): Promise<Product> {
-        const newProduct = await this.productModel.create(createProductDTO)
-        return newProduct.save()
+        const decodedImage = await this.decodeImage(createProductDTO.image);
+        const newProduct = new this.productModel({ ...createProductDTO, image: decodedImage });
+        return await newProduct.save();
     }
 
     async deleteProduct(id: string): Promise<Product> {
@@ -42,4 +55,13 @@ export class ProductService {
         }
     }
 
+    async  decodeImage(base64Image: Buffer): Promise<Buffer> {
+        const binaryData = Buffer.from(base64Image.toString(), 'base64');
+        return binaryData;
+    }
+    
+    async  encodeImage(binaryImageData: Buffer): Promise<Buffer> {
+        const encodedImage = Buffer.from(binaryImageData.toString('base64'), 'base64');
+        return encodedImage;
+    }
 }
