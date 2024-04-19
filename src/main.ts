@@ -9,7 +9,7 @@ import { redisConfig } from './config/redis.config';
 dotenv.config();
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true, });
   app.setGlobalPrefix('api', {
     exclude: [{ path: '/', method: RequestMethod.GET }]
   });
@@ -17,6 +17,7 @@ async function bootstrap() {
   await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
+
       transport: Transport.REDIS,
       options: {
         host: redisConfig.host,
@@ -25,10 +26,10 @@ async function bootstrap() {
     },
   );
   await app.startAllMicroservices();
-  
+
   const configService = app.get(ConfigService);
   const port = configService.get<number>('port');
-  await app.listen(port);
+  await app.listen(port, "0,0,0,0");
 }
 
 bootstrap();

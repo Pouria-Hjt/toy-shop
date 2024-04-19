@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Post, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Delete, Param, Body, UseGuards, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CreateProductDTO } from 'src/dto/create-product.dto';
 import { ProductService } from 'src/product/product.service';
 import { OrderService } from 'src/order/order.service';
@@ -6,22 +6,24 @@ import { Roles } from 'src/decorator/role.decorator';
 import { Role } from 'src/constant/role.constant';
 import { RolesGuard } from 'src/guard/role.guard';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
-@UseGuards(AuthGuard, RolesGuard) 
-@Controller('admin') 
+@UseGuards(AuthGuard, RolesGuard)
+@Controller('admin')
 @Roles(Role.Admin)
 export class AdminController {
     constructor(
         private readonly productService: ProductService,
-        private readonly orderService: OrderService) {}
-    
+        private readonly orderService: OrderService) { }
+
 
     @Get('products')
     async getAllProducts() {
         return await this.productService.getAllProducts()
     }
 
-    @Get('product/:id') 
+    @Get('product/:id')
     async getProduct(@Param('id') id: string) {
         return await this.productService.getProduct(id)
     }
@@ -40,8 +42,8 @@ export class AdminController {
     async updateProduct(@Param('id') id: string, @Body() createProductDTO: CreateProductDTO) {
         return await this.productService.updateProduct(id, createProductDTO)
     }
-     
-    
+
+
     @Get('orders')
     async getAllOrders() {
         return await this.orderService.getAllOrders()

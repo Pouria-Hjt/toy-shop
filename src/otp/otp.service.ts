@@ -10,7 +10,7 @@ export class OtpService {
     private readonly client: Redis;
 
     constructor(private readonly configService: ConfigService) {
-      this.client = new Redis(); // Redis connection
+        this.client = new Redis(); // Redis connection
     }
 
     async generateAndStoreOtp(phoneNumber: string): Promise<string> {
@@ -27,15 +27,15 @@ export class OtpService {
     async sendOtp(phoneNumber: string): Promise<boolean> {
         try {
             const api = kavenegar.KavenegarApi({
-                apikey:  this.configService.get<string>('apiKey')
+                apikey: this.configService.get<string>('apiKey')
             })
             const otp: string = await this.generateAndStoreOtp(phoneNumber)
             return new Promise((resolve, reject) => {
                 api.VerifyLookup({
                     receptor: phoneNumber,
                     token: otp,
-                    template: '',
-                }, function(response, status) {
+                    template: 'login',
+                }, function (response, status) {
                     if (status === 200) {
                         resolve(true);
                     } else {

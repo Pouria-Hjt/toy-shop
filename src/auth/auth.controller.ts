@@ -13,57 +13,62 @@ import { UserService } from 'src/user/user.service';
 export class AuthController {
     constructor(private readonly authService: AuthService,
         private readonly userService: UserService,
-                @InjectModel('User') private readonly userModel: Model<UserDocument>){}
+        @InjectModel('User') private readonly userModel: Model<UserDocument>) { }
 
-@Post('register')
-async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
-    try {
-        await this.authService.register(registerDto)
-        res.status(HttpStatus.CREATED).send({ message: 'Registration successful' })
-    } catch (error) {
-        if (error instanceof HttpException && error.getStatus() === HttpStatus.CONFLICT) {
-            res.status(HttpStatus.CONFLICT).send({ message: 'User already exists' });
-        } else {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Registration failed' });
+    @Post('register')
+    async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
+        try {
+            await this.authService.register(registerDto)
+            res.status(HttpStatus.CREATED).send({ message: 'Registration successful' })
+        } catch (error) {
+            if (error instanceof HttpException && error.getStatus() === HttpStatus.CONFLICT) {
+                res.status(HttpStatus.CONFLICT).send({ message: 'User already exists' });
+            } else {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Registration failed' });
+            }
         }
+
     }
 
-}
-
-@Post('login')
-async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    try {
-        await this.authService.login(loginDto)
-        res.status(HttpStatus.OK).send({ message: 'Login successful' })
-    } catch (error) {
-        if (error instanceof HttpException && error.getStatus() === HttpStatus.NOT_FOUND) {
-            res.status(HttpStatus.NOT_FOUND).send({ message: 'User does not exist' });
-        } else {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Login failed' });
+    @Post('login')
+    async login(@Body() loginDto: LoginDto, @Res() res: Response) {
+        try {
+            await this.authService.login(loginDto)
+            res.status(HttpStatus.OK).send({ message: 'Login successful' })
+        } catch (error) {
+            if (error instanceof HttpException && error.getStatus() === HttpStatus.NOT_FOUND) {
+                res.status(HttpStatus.NOT_FOUND).send({ message: 'User does not exist' });
+            } else {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'Login failed' });
+            }
         }
+
     }
 
-}
+
+    @Get('verify-otp')
+    async getOtp() { }
 
 
-@Get('verify-otp') 
-async getOtp() {}
-
-
-@Post('verify-otp')
-async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto, @Res() res: Response, @Req() req: Request) {
-    try {
-        await this.authService.verifyOtp(verifyOtpDto);
-        const user = await this.userModel.findOne({ phoneNumber: verifyOtpDto.phoneNumber})
-        const token = await this.userService.generateAccessToken(user._id);
-        res.header('Authorization', `Bearer ${token}`).status(HttpStatus.OK).send({ message: 'OTP verification successful' });
-    } catch (error) {
-        if (error instanceof HttpException && error.getStatus() === HttpStatus.BAD_REQUEST) {
-            res.status(HttpStatus.NOT_FOUND).send({ message: 'Invalid OTP' });
-        } else {
-            res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'OTP verification failed' });
+    @Post('verify-otp')
+    async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto, @Res() res: Response, @Req() req: Request) {
+        try {
+            await this.authService.verifyOtp(verifyOtpDto);
+            const user = await this.userModel.findOne({ phoneNumber: verifyOtpDto.phoneNumber })
+            const token = await this.userService.generateAccessToken(user._id);
+            const userRole = await this.userService.setUserRole(verifyOtpDto.phoneNumber);
+            if (userRole === 0) {
+                res.status(HttpStatus.OK).send({ message: 'OTP verification successful', token, userRole: userRole });
+            } else {
+                res.status(HttpStatus.OK).send({ message: 'OTP verification successful', token });
+            }
+        } catch (error) {
+            if (error instanceof HttpException && error.getStatus() === HttpStatus.BAD_REQUEST) {
+                res.status(HttpStatus.NOT_FOUND).send({ message: 'Invalid OTP' });
+            } else {
+                res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({ message: 'OTP verification failed' });
+            }
         }
     }
-}
 }
 
