@@ -10,7 +10,13 @@ export class OtpService {
     private readonly client: Redis;
 
     constructor(private readonly configService: ConfigService) {
-        this.client = new Redis(); // Redis connection
+        this.client = new Redis({
+            host: process.env.REDIS_HOST,
+            port: process.env.REDIS_PORT,
+            password: process.env.REDIS_PASSWORD
+            lazyConnect: true,
+            keepAlive: 1000,
+        }); // Redis connection
     }
 
     async generateAndStoreOtp(phoneNumber: string): Promise<string> {
